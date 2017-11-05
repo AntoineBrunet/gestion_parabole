@@ -13,7 +13,7 @@ using json=nlohmann::json;
 namespace fyt_par {
 	typedef geometry_msgs::Quaternion quaternion_t;
 	typedef ros::Duration timing_t;
-	typedef json params_t;
+	typedef const json & params_t;
 
 	class Manoeuvre {
 		public:
@@ -110,7 +110,6 @@ namespace fyt_par {
 
 	template <class Context> class ManoeuvreFactory {
 		private:
-			params_t globals;
 			Context ctx;
 			template <class T> quaternion_t make_quaternion(T tbl) {
 				quaternion_t res;
@@ -121,21 +120,20 @@ namespace fyt_par {
 				return res;
 			}
 		public:
-			ManoeuvreFactory(json params, Context ctx_) :
-				globals(params),
+			ManoeuvreFactory(Context ctx_) :
 				ctx(ctx_) {}
 
-			void run(json desc) {
+			void run(params_t agc, params_t desc) {
 				std::string type_name = desc["type"];
 				std::cout << "Parabol type is " << type_name << std::endl;
 				int type = str2int(type_name.c_str());
 				if (type == str2int("FP")) {
 					timing_t ts((float)(desc["t1"]));
 					quaternion_t qd = make_quaternion<json>(desc["qc"]);
-					FixedPointing<Context> fp(ctx, globals, ts, qd);
+					FixedPointing<Context> fp(ctx, agc, ts, qd);
 					fp.start();
 				} else if (type == str2int("OT")) {
-					ObjectTracking<Context> ot(ctx, globals);
+					ObjectTracking<Context> ot(ctx, agc);
 					ot.start();
 				} else {
 					throw std::invalid_argument(type_name);
