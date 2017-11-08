@@ -18,7 +18,9 @@ class Controller {
 		ros::Subscriber sub_qm, sub_state;
 		ManoeuvreFactory<const Controller&> mf;
 		quaternion_t qm;
+		moment_t hg;
 		mutable std::mutex qm_mut;
+		mutable std::mutex hg_mut;
 		params_t agcs;
 		params_t paraboles;
 		bool alert, running;
@@ -38,12 +40,16 @@ class Controller {
 			current_parabole = 0;
 		}
 		quaternion_t get_qm() const {
-			std::unique_lock<std::mutex> lock(qm_mut);
 			return qm;
 		}
 		void set_qm(const quaternion_t::ConstPtr& msg) {
-			std::unique_lock<std::mutex> lock(qm_mut);
 			qm = *msg;
+		}
+		moment_t get_hg() const {
+			return hg;
+		}
+		void set_hg(const moment_t & msg) {
+			hg = msg;
 		}
 		void get_ready(params_t agc) {
 			cmg_msgs::SpeedList msg_fw;
