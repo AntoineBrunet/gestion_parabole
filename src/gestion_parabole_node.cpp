@@ -6,7 +6,7 @@
 #include "cmg_msgs/State.h"
 #include "cmg_msgs/SpeedList.h"
 #include "cmg_msgs/Speed.h"
-#include "cmg_msgs/GimbalTarget.h"
+#include "cmg_msgs/AGConfig.h"
 #include "fyt_mae/fyt_commons.h"
 
 using namespace fyt_par; 
@@ -14,7 +14,7 @@ using namespace fyt_par;
 class Controller {
 	private:
 		ros::NodeHandle n;
-		ros::Publisher pub_guidage, pub_fw, pub_gi;
+		ros::Publisher pub_guidage, pub_agc, pub_fw;
 		ros::Subscriber sub_qm, sub_state;
 		ManoeuvreFactory<const Controller&> mf;
 		quaternion_t qm;
@@ -25,18 +25,24 @@ class Controller {
 		params_t paraboles;
 		bool alert, running;
 		unsigned int current_parabole;
+		std::vector<cmg_msgs::Speed> prev_speeds;
 	public:
 		Controller(params_t conf) : 
 			n("~"), 
 			mf(*this), 
+			prev_speeds(6),
 			agcs(conf["ag_configs"]), 
 			paraboles(conf["paraboles"])
 		{
 			pub_guidage = n.advertise<cmg_msgs::Guidage>("guidage", 1);
+			pub_agc = n.advertise<cmg_msgs::AGConfig>("ag_config", 1);
 			pub_fw = n.advertise<cmg_msgs::SpeedList>("fw_cmd", 5);
-			pub_gi = n.advertise<cmg_msgs::GimbalTarget>("gi_cmd", 5);
 			sub_qm = n.subscribe("qm", 5, &Controller::set_qm, this);
 			sub_state = n.subscribe("states", 1, &Controller::state_cb, this);
+			for (int i = 0; i < 6; i++) {
+				prev_speeds[i].id = i;
+				prev_speeds[i].speed = 0;
+			}
 			current_parabole = 0;
 		}
 		quaternion_t get_qm() const {
@@ -53,20 +59,28 @@ class Controller {
 		}
 		void get_ready(params_t agc) {
 			cmg_msgs::SpeedList msg_fw;
+			msg_fw.speeds = prev_speeds;
 			double speed = agc["vitesse_toupie"];
 			for (int id : agc["ags"]) {
-				cmg_msgs::Speed spd;
-				spd.id = id;
-				spd.speed = speed;
-				msg_fw.speeds.push_back(spd);
+				if (msg_fw.speeds[id].speed != speed) {
+					msg_fw.speeds[id].speed = speed;
+					pub_fw.publish(msg_fw);
+					ros::Duration(3).sleep();
+				}
 			}
-			pub_fw.publish(msg_fw);
-			cmg_msgs::GimbalTarget msg_gi;
-			msg_gi.mode = 0;
-			for (int i = 0; i < agc["init_pos"].size(); i++) {
-				msg_gi.positions.push_back(agc["init_pos"][i]);
+			prev_speeds = msg_fw.speeds;
+
+			cmg_msgs::AGConfig msg_agc;
+			msg_agc.htoupie = agc["h_toupie"];
+			for (int i = 0; i < msg_agc.running.size(); i++) {
+				msg_agc.running[i] = false;
+				msg_agc.init_pos[i] = agc["init_pos"][i];
 			}
-			pub_gi.publish(msg_gi);
+			for (int i : agc["ags"]) {
+				msg_agc.running[i] = true;
+			}
+			
+			pub_agc.publish(msg_agc);
 		}
 		void state_cb(const cmg_msgs::State::ConstPtr& msg) {
 			params_t pbc = paraboles[current_parabole];

@@ -31,7 +31,7 @@ template <class Context> class LargeManeuver : public Manoeuvre {
 			guidage.qd.y = 0;
 			guidage.qd.z = 0;
 			guidage.qd.w = 1;
-			guidage.object_tracking = false;
+			guidage.type = 0;
 			ctx.publish(guidage);
 			ctx.sleep(t1);
 			

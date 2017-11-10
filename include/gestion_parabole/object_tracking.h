@@ -22,7 +22,7 @@ template <class Context> class ObjectTracking : public Manoeuvre {
 			guidage.qd.y = 0;
 			guidage.qd.z = 0;
 			guidage.qd.w = 1;
-			guidage.object_tracking = true;
+			guidage.type = 1;
 			ctx.publish(guidage);
 
 			ctx.sleep(t2);
