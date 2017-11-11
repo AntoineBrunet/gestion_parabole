@@ -110,6 +110,14 @@ class Controller {
 			if (msg->state == STATE_SAFE) {
 				ROS_INFO("Going to safe state, alerting current maneuver");
 				alert = true;
+				ROS_INFO("Shutting down flywheels");
+				cmg_msgs::SpeedList msg_fw;
+				msg_fw.speeds = prev_speeds;
+				for (int id = 0; id < 6; id++) {
+					msg_fw.speeds[id].speed = 0;
+				}
+				pub_fw.publish(msg_fw);
+				prev_speeds = msg_fw.speeds;
 			}
 		}
 		void publish(const cmg_msgs::Guidage& guidage) const {
