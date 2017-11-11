@@ -22,13 +22,13 @@ namespace fyt_par {
 			virtual void start() = 0;
 	};
 
-	quaternion_t qmult(quaternion_t a, quaternion_t b) {
+	quaternion_t qmult(quaternion_t b, quaternion_t c) {
 		quaternion_t res;
 		// TODO : implement
-		res.x = 0;
-		res.y = 0;
-		res.z = 0;
-		res.w = 0;
+		res.w = c.w*b.w-b.x*c.x-b.y*c.y-b.z*c.z;
+		res.x = c.w*b.x + b.w*c.x + b.y*c.z-b.z*c.y;
+		res.y = c.w*b.y+b.w*c.y+b.z*c.x-b.x*c.z;
+		res.z = c.w*b.z+b.w*c.z+b.x*c.y-b.y*c.x;
 		return res;
 	}
 	constexpr unsigned int str2int(const char* str, int h = 0)
