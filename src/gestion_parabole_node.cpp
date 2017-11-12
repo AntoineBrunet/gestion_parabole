@@ -39,7 +39,7 @@ class Controller {
 			pub_agc = n.advertise<cmg_msgs::AGConfig>("/parabola/agconfig", 1);
 			pub_fw = n.advertise<cmg_msgs::SpeedList>("/fw/cmd", 5);
 			sub_qm = n.subscribe("/imu/filtre", 5, &Controller::set_qm, this);
-			sub_state = n.subscribe("states", 1, &Controller::state_cb, this);
+			sub_state = n.subscribe("/mae/state", 1, &Controller::state_cb, this);
 			for (int i = 0; i < 6; i++) {
 				prev_speeds[i].id = i;
 				prev_speeds[i].speed = 0;
