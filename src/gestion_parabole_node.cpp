@@ -8,6 +8,7 @@
 #include "cmg_msgs/Speed.h"
 #include "cmg_msgs/AGConfig.h"
 #include "fyt_mae/fyt_commons.h"
+#include "sensor_msgs/Imu.h"
 
 using namespace fyt_par; 
 
@@ -34,10 +35,10 @@ class Controller {
 			agcs(conf["ag_configs"]), 
 			paraboles(conf["paraboles"])
 		{
-			pub_guidage = n.advertise<cmg_msgs::Guidage>("guidage", 1);
-			pub_agc = n.advertise<cmg_msgs::AGConfig>("ag_config", 1);
-			pub_fw = n.advertise<cmg_msgs::SpeedList>("fw_cmd", 5);
-			sub_qm = n.subscribe("qm", 5, &Controller::set_qm, this);
+			pub_guidage = n.advertise<cmg_msgs::Guidage>("/parabola/guidage", 1);
+			pub_agc = n.advertise<cmg_msgs::AGConfig>("/parabola/agconfig", 1);
+			pub_fw = n.advertise<cmg_msgs::SpeedList>("/fw/cmd", 5);
+			sub_qm = n.subscribe("/imu/filtre", 5, &Controller::set_qm, this);
 			sub_state = n.subscribe("states", 1, &Controller::state_cb, this);
 			for (int i = 0; i < 6; i++) {
 				prev_speeds[i].id = i;
@@ -48,8 +49,8 @@ class Controller {
 		quaternion_t get_qm() const {
 			return qm;
 		}
-		void set_qm(const quaternion_t::ConstPtr& msg) {
-			qm = *msg;
+		void set_qm(const sensor_msgs::Imu::ConstPtr& msg) {
+			qm = msg->orientation;
 		}
 		moment_t get_hg() const {
 			return hg;

@@ -41,11 +41,13 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>cmg_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
   <build_depend>fyt_mae</build_depend>
   <build_depend>roscpp</build_depend>
   <run_depend>cmg_msgs</run_depend>
   <run_depend>fyt_mae</run_depend>
   <run_depend>roscpp</run_depend>
+  <run_depend>sensor_msgs</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
