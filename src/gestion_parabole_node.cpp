@@ -63,8 +63,8 @@ class Controller {
 			msg_fw.speeds = prev_speeds;
 			double speed = agc["vitesse_toupie"];
 			for (int id : agc["ags"]) {
-				if (msg_fw.speeds[id].speed != speed) {
-					msg_fw.speeds[id].speed = speed;
+				if (msg_fw.speeds[id-1].speed != speed) {
+					msg_fw.speeds[id-1].speed = speed;
 					pub_fw.publish(msg_fw);
 					ros::Duration(3).sleep();
 				}
@@ -73,15 +73,16 @@ class Controller {
 
 			cmg_msgs::AGConfig msg_agc;
 			msg_agc.htoupie = agc["h_toupie"];
+			msg_agc.tpara = agc["tfin"];
 			for (int i = 0; i < msg_agc.running.size(); i++) {
 				msg_agc.running[i] = false;
 				msg_agc.init_pos[i] = agc["init_pos"][i];
 			}
 			for (int i : agc["ags"]) {
-				msg_agc.running[i] = true;
-			}
-			
+				msg_agc.running[i-1] = true;
+			}	
 			pub_agc.publish(msg_agc);
+
 		}
 		void state_cb(const cmg_msgs::State::ConstPtr& msg) {
 			params_t pbc = paraboles[current_parabole];
@@ -139,8 +140,11 @@ class Controller {
 
 int main(int argc, char * argv[]) {
 	ros::init(argc, argv, "gestion_parabole");
+	std::string input_file;
+	ros::param::get("/gestion_parabole/parabola_list", input_file);
+	std::cout << "Parabola list is in: " << input_file << std::endl;
 	json j;
-	std::ifstream in(argv[1]);
+	std::ifstream in(input_file);
 	in >> j;
 
 	Controller c(j);
