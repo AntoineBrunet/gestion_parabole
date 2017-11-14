@@ -76,6 +76,7 @@ class Controller {
 			cmg_msgs::AGConfig msg_agc;
 			msg_agc.htoupie = agc["h_toupie"];
 			msg_agc.tpara = agc["tfin"];
+			msg_agc.id_para = current_parabole;
 			for (int i = 0; i < msg_agc.running.size(); i++) {
 				msg_agc.running[i] = false;
 				msg_agc.init_pos[i] = agc["init_pos"][i];
