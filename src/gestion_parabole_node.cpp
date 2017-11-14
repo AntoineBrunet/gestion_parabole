@@ -103,6 +103,9 @@ class Controller {
 					if (alert) {
 						ROS_WARN("Mission was interupted (went to safe state)");
 					}
+					cmg_msgs::Guidage gui;
+					gui.type = 2;
+					publish(gui);
 					cmg_msgs::Signal sig;
 					sig.signal = SIG_END;
 					pub_sig.publish(sig);
