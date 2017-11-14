@@ -16,7 +16,7 @@ class Controller {
 	private:
 		ros::NodeHandle n;
 		ros::Publisher pub_guidage, pub_agc, pub_fw, pub_sig;
-		ros::Subscriber sub_qm, sub_state;
+		ros::Subscriber sub_qm, sub_state, sub_hg;
 		ManoeuvreFactory<const Controller&> mf;
 		quaternion_t qm;
 		moment_t hg;
@@ -38,6 +38,7 @@ class Controller {
 			pub_sig = n.advertise<cmg_msgs::Signal>("/mae/signal", 1);
 			pub_fw = n.advertise<cmg_msgs::SpeedList>("/fw/cmd", 5);
 			sub_qm = n.subscribe("/imu/filtre", 5, &Controller::set_qm, this);
+			sub_hg = n.subscribe("/boucle/hg", 1, &Controller::set_hg, this);
 			sub_state = n.subscribe("/mae/state", 1, &Controller::state_cb, this);
 			for (int i = 0; i < 6; i++) {
 				prev_speeds[i].id = i;
