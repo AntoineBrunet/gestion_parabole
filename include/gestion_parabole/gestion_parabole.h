@@ -13,7 +13,7 @@ using json=nlohmann::json;
 
 namespace fyt_par {
 	typedef geometry_msgs::Quaternion quaternion_t;
-	typedef geometry_msgs::Vector3::ConstPtr moment_t;
+	typedef geometry_msgs::Vector3 moment_t;
 	typedef int timing_t;
 	typedef const json & params_t;
 
@@ -24,7 +24,6 @@ namespace fyt_par {
 
 	quaternion_t qmult(quaternion_t b, quaternion_t c) {
 		quaternion_t res;
-		// TODO : implement
 		res.w = c.w*b.w-b.x*c.x-b.y*c.y-b.z*c.z;
 		res.x = c.w*b.x + b.w*c.x + b.y*c.z-b.z*c.y;
 		res.y = c.w*b.y+b.w*c.y+b.z*c.x-b.x*c.z;

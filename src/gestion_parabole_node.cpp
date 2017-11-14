@@ -7,6 +7,7 @@
 #include "cmg_msgs/SpeedList.h"
 #include "cmg_msgs/Speed.h"
 #include "cmg_msgs/AGConfig.h"
+#include "cmg_msgs/Signal.h"
 #include "fyt_mae/fyt_commons.h"
 #include "sensor_msgs/Imu.h"
 
@@ -15,7 +16,7 @@ using namespace fyt_par;
 class Controller {
 	private:
 		ros::NodeHandle n;
-		ros::Publisher pub_guidage, pub_agc, pub_fw;
+		ros::Publisher pub_guidage, pub_agc, pub_fw, pub_sig;
 		ros::Subscriber sub_qm, sub_state;
 		ManoeuvreFactory<const Controller&> mf;
 		quaternion_t qm;
@@ -37,6 +38,7 @@ class Controller {
 		{
 			pub_guidage = n.advertise<cmg_msgs::Guidage>("/parabola/guidage", 1);
 			pub_agc = n.advertise<cmg_msgs::AGConfig>("/parabola/agconfig", 1);
+			pub_sig = n.advertise<cmg_msgs::Signal>("/mae/signal", 1);
 			pub_fw = n.advertise<cmg_msgs::SpeedList>("/fw/cmd", 5);
 			sub_qm = n.subscribe("/imu/filtre", 5, &Controller::set_qm, this);
 			sub_state = n.subscribe("/mae/state", 1, &Controller::state_cb, this);
@@ -101,6 +103,9 @@ class Controller {
 					if (alert) {
 						ROS_WARN("Mission was interupted (went to safe state)");
 					}
+					cmg_msgs::Signal sig;
+					sig.signal = SIG_END;
+					pub_sig.publish(sig);
 					running = false;
 				} else {
 					ROS_ERROR("New mission started but previous one was not done.");
@@ -132,7 +137,7 @@ class Controller {
 			for (int i = 1; (i < max) && (!alert); i++) {
 				ros::spinOnce();
 				r.sleep();
-				ROS_INFO("tic tac %d/%d",i,max);
+			//	ROS_INFO("tic tac %d/%d",i,max);
 			}
 			return !alert;
 		}

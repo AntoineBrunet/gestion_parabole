@@ -38,9 +38,9 @@ template <class Context> class LargeManeuver : public Manoeuvre {
 			timing_t dt = t2-t1;
 			moment_t hg = ctx.get_hg();
 			guidage.a = {
-				-isat_inv[0]*(ht*hd[0] - hg->x)/dt,
-				-isat_inv[1]*(ht*hd[1] - hg->y)/dt,
-				-isat_inv[2]*(ht*hd[2] - hg->z)/dt
+				-isat_inv[0]*(ht*hd[0] - hg.x)/dt,
+				-isat_inv[1]*(ht*hd[1] - hg.y)/dt,
+				-isat_inv[2]*(ht*hd[2] - hg.z)/dt
 			};
 			ctx.publish(guidage);
 			ctx.sleep(dt);
