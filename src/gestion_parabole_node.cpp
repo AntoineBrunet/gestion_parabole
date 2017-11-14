@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <mutex>
 
 #include "gestion_parabole/gestion_parabole.h"
 #include "cmg_msgs/State.h"
@@ -21,11 +20,9 @@ class Controller {
 		ManoeuvreFactory<const Controller&> mf;
 		quaternion_t qm;
 		moment_t hg;
-		mutable std::mutex qm_mut;
-		mutable std::mutex hg_mut;
 		params_t agcs;
 		params_t paraboles;
-		bool alert, running;
+		bool alert, ended, running;
 		unsigned int current_parabole;
 		std::vector<cmg_msgs::Speed> prev_speeds;
 	public:
@@ -68,7 +65,7 @@ class Controller {
 				if (msg_fw.speeds[id-1].speed != speed) {
 					msg_fw.speeds[id-1].speed = speed;
 					pub_fw.publish(msg_fw);
-					ros::Duration(3).sleep();
+					if (!sleep(3)) { return; }
 				}
 			}
 			prev_speeds = msg_fw.speeds;
@@ -92,12 +89,13 @@ class Controller {
 			int curr_agc = pbc["ag_config"];
 			params_t agc = agcs[curr_agc];
 			if (msg->state == STATE_READY) {
+				alert = false;
+				ended = false;
 				ROS_INFO("Loading ag config number %d",curr_agc);
 				get_ready(agc);	
 			}
 			if (msg->state == STATE_MISS) {
 				if (!running) {
-					alert = false;
 					running = true;
 					ROS_INFO("Starting maneuver");
 					mf.run(agc, pbc);
@@ -107,15 +105,18 @@ class Controller {
 					cmg_msgs::Guidage gui;
 					gui.type = 2;
 					publish(gui);
-					cmg_msgs::Signal sig;
-					sig.signal = SIG_END;
-					pub_sig.publish(sig);
+					if (!ended) {
+						cmg_msgs::Signal sig;
+						sig.signal = SIG_END;
+						pub_sig.publish(sig);
+					}
 					running = false;
 				} else {
 					ROS_ERROR("New mission started but previous one was not done.");
 				}
 			}
 			if (msg->state == STATE_POST) {
+				ended = true;
 				current_parabole++;
 			}
 			if (msg->state == STATE_SAFE) {
@@ -138,12 +139,12 @@ class Controller {
 			int poll_freq = 3;
 			int max = t * poll_freq + 1;
 			ros::Rate r(poll_freq);
-			for (int i = 1; (i < max) && (!alert); i++) {
+			for (int i = 1; (i < max) && !(alert || ended); i++) {
 				ros::spinOnce();
 				r.sleep();
 			//	ROS_INFO("tic tac %d/%d",i,max);
 			}
-			return !alert;
+			return !(alert || ended);
 		}
 };
 
