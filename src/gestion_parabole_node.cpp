@@ -45,6 +45,9 @@ class Controller {
 				prev_speeds[i].speed = 0;
 			}
 			current_parabole = 0;
+			running = false;
+			alert = false;
+			ended = false;
 		}
 		quaternion_t get_qm() const {
 			return qm;
