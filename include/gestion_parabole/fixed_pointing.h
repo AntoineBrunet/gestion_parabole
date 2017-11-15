@@ -25,7 +25,7 @@ template <class Context> class FixedPointing : public Manoeuvre {
 			guidage.qd.x = 0;
 			guidage.qd.y = 0;
 			guidage.qd.z = 0;
-			guidage.qd.w = 0;
+			guidage.qd.w = 1;
 			guidage.type = 0;
 			ctx.publish(guidage);
 			std::cout << "Publishing 1st guidance order" << std::endl;
