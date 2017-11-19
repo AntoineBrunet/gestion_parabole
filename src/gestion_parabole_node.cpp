@@ -2,6 +2,7 @@
 #include <fstream>
 
 #include "gestion_parabole/gestion_parabole.h"
+#include "gestion_parabole/SetId.h"
 #include "cmg_msgs/State.h"
 #include "cmg_msgs/SpeedList.h"
 #include "cmg_msgs/Speed.h"
@@ -17,6 +18,7 @@ class Controller {
 		ros::NodeHandle n;
 		ros::Publisher pub_guidage, pub_agc, pub_fw, pub_sig;
 		ros::Subscriber sub_qm, sub_state, sub_hg;
+		ros::ServiceServer pid_serv;
 		ManoeuvreFactory<const Controller&> mf;
 		quaternion_t qm;
 		moment_t hg;
@@ -40,6 +42,7 @@ class Controller {
 			sub_qm = n.subscribe("/imu/filtre", 5, &Controller::set_qm, this);
 			sub_hg = n.subscribe("/boucle/hg", 1, &Controller::set_hg, this);
 			sub_state = n.subscribe("/mae/state", 1, &Controller::state_cb, this);
+			pid_serv = n.advertiseService("/parabola/set_id", &Controller::set_id, this);
 			for (int i = 0; i < 6; i++) {
 				prev_speeds[i].id = i;
 				prev_speeds[i].speed = 0;
@@ -48,6 +51,10 @@ class Controller {
 			running = false;
 			alert = false;
 			ended = false;
+		}
+		bool set_id(gestion_parabole::SetId::Request &req, gestion_parabole::SetId::Response &res) {
+			current_parabole = req.id;
+			return true;
 		}
 		quaternion_t get_qm() const {
 			return qm;
