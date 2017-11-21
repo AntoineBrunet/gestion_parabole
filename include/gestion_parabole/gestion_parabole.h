@@ -44,10 +44,10 @@ namespace fyt_par {
 			Context ctx;
 			template <class T> quaternion_t make_quaternion(T tbl) {
 				quaternion_t res;
-				res.x = tbl[0];
-				res.y = tbl[1];
-				res.z = tbl[2];
-				res.w = tbl[3];
+				res.w = tbl[0];
+				res.x = tbl[1];
+				res.y = tbl[2];
+				res.z = tbl[3];
 				return res;
 			}
 		public:
