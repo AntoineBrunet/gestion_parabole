@@ -53,8 +53,20 @@ class Controller {
 			ended = false;
 		}
 		bool set_id(gestion_parabole::SetId::Request &req, gestion_parabole::SetId::Response &res) {
-			current_parabole = req.id;
-			return true;
+			ROS_INFO("Asked parabola %d/%d", req.id, paraboles.size());
+			if (current_parabole != req.id && req.id < paraboles.size()) {
+				ROS_INFO("Changing to parabola %d", req.id);
+				current_parabole = req.id;
+				params_t pbc = paraboles[req.id];
+				int curr_agc = pbc["ag_config"];
+				params_t agc = agcs[curr_agc];
+				alert = false;
+				ended = false;
+				ROS_INFO("Loading ag config number %d",curr_agc);
+				get_ready(agc);	
+				return true;
+			}
+			return false;
 		}
 		quaternion_t get_qm() const {
 			return qm;
@@ -85,7 +97,7 @@ class Controller {
 				if (msg_fw.speeds[id-1].speed != speed) {
 					msg_fw.speeds[id-1].speed = speed;
 					pub_fw.publish(msg_fw);
-					if (!sleep(3)) { return; }
+					if (!sleep(2)) { return; }
 				}
 			}
 			for (int i = 0; i < msg_agc.running.size(); i++) {
@@ -133,6 +145,9 @@ class Controller {
 			if (msg->state == STATE_POST) {
 				ended = true;
 				current_parabole++;
+				if (current_parabole >= paraboles.size()) {
+					current_parabole = 0;
+				}
 			}
 			if (msg->state == STATE_SAFE) {
 				ROS_INFO("Going to safe state, alerting current maneuver");
