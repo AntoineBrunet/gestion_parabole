@@ -72,15 +72,6 @@ class Controller {
 			cmg_msgs::SpeedList msg_fw;
 			msg_fw.speeds = prev_speeds;
 			double speed = agc["vitesse_toupie"];
-			for (int id : agc["ags"]) {
-				if (msg_fw.speeds[id-1].speed != speed) {
-					msg_fw.speeds[id-1].speed = speed;
-					pub_fw.publish(msg_fw);
-					if (!sleep(3)) { return; }
-				}
-			}
-			prev_speeds = msg_fw.speeds;
-
 			cmg_msgs::AGConfig msg_agc;
 			msg_agc.htoupie = agc["h_toupie"];
 			msg_agc.tpara = agc["tfin"];
@@ -89,9 +80,22 @@ class Controller {
 				msg_agc.running[i] = false;
 				msg_agc.init_pos[i] = agc["init_pos"][i];
 			}
-			for (int i : agc["ags"]) {
-				msg_agc.running[i-1] = true;
-			}	
+			for (int id : agc["ags"]) {
+				msg_agc.running[id-1] = true;
+				if (msg_fw.speeds[id-1].speed != speed) {
+					msg_fw.speeds[id-1].speed = speed;
+					pub_fw.publish(msg_fw);
+					if (!sleep(3)) { return; }
+				}
+			}
+			for (int i = 0; i < msg_agc.running.size(); i++) {
+				if (!msg_agc.running[i] && (msg_fw.speeds[i].speed != 0.)) {
+					msg_fw.speeds[i].speed = 0.;
+				}
+			}
+			pub_fw.publish(msg_fw);
+			prev_speeds = msg_fw.speeds;
+
 			pub_agc.publish(msg_agc);
 
 		}
