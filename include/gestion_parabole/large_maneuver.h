@@ -32,6 +32,7 @@ template <class Context> class LargeManeuver : public Manoeuvre {
 			guidage.qd.z = 0;
 			guidage.qd.w = 1;
 			guidage.type = 0;
+			guidage.header.stamp = ros::Time::now();
 			ctx.publish(guidage);
 			ctx.sleep(t1);
 			
@@ -42,6 +43,7 @@ template <class Context> class LargeManeuver : public Manoeuvre {
 				-isat_inv[1]*(ht*hd[1] - hg.vector.y)/dt,
 				-isat_inv[2]*(ht*hd[2] - hg.vector.z)/dt
 			};
+			guidage.header.stamp = ros::Time::now();
 			ctx.publish(guidage);
 			ctx.sleep(dt);
 
@@ -51,6 +53,7 @@ template <class Context> class LargeManeuver : public Manoeuvre {
 				guidage.a[2] * dt
 			};
 			guidage.a = {0,0,0};
+			guidage.header.stamp = ros::Time::now();
 			ctx.publish(guidage);
 			dt = t3-t2;
 			ctx.sleep(dt);
@@ -61,12 +64,14 @@ template <class Context> class LargeManeuver : public Manoeuvre {
 				-guidage.b[1] / dt,
 				-guidage.b[2] / dt
 			};
+			guidage.header.stamp = ros::Time::now();
 			ctx.publish(guidage);
 			ctx.sleep(dt);
 
 			guidage.a = {0,0,0};
 			guidage.b = {0,0,0};
 			dt = tf - t4;
+			guidage.header.stamp = ros::Time::now();
 			ctx.publish(guidage);
 			ctx.sleep(dt);
 		}

@@ -85,6 +85,7 @@ class Controller {
 			msg_fw.speeds = prev_speeds;
 			double speed = agc["vitesse_toupie"];
 			cmg_msgs::AGConfig msg_agc;
+			msg_agc.header.stamp = ros::Time::now();
 			msg_agc.htoupie = agc["h_toupie"];
 			msg_agc.tpara = agc["tfin"];
 			msg_agc.id_para = current_parabole;
@@ -96,6 +97,7 @@ class Controller {
 				msg_agc.running[id-1] = true;
 				if (msg_fw.speeds[id-1].speed != speed) {
 					msg_fw.speeds[id-1].speed = speed;
+					msg_fw.header.stamp = ros::Time::now();
 					pub_fw.publish(msg_fw);
 					if (!sleep(2)) { return; }
 				}
@@ -105,6 +107,7 @@ class Controller {
 					msg_fw.speeds[i].speed = 0.;
 				}
 			}
+			msg_fw.header.stamp = ros::Time::now();
 			pub_fw.publish(msg_fw);
 			prev_speeds = msg_fw.speeds;
 
@@ -131,6 +134,7 @@ class Controller {
 					}
 					cmg_msgs::Guidage gui;
 					gui.type = 2;
+					gui.header.stamp = ros::Time::now();
 					publish(gui);
 					if (!ended) {
 						cmg_msgs::Signal sig;
@@ -158,6 +162,7 @@ class Controller {
 				for (int id = 0; id < 6; id++) {
 					msg_fw.speeds[id].speed = 0;
 				}
+				msg_fw.header.stamp = ros::Time::now();
 				pub_fw.publish(msg_fw);
 				prev_speeds = msg_fw.speeds;
 			}

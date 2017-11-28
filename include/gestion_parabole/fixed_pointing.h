@@ -27,6 +27,7 @@ template <class Context> class FixedPointing : public Manoeuvre {
 			guidage.qd.z = 0;
 			guidage.qd.w = 1;
 			guidage.type = 0;
+			guidage.header.stamp = ros::Time::now();
 			ctx.publish(guidage);
 			std::cout << "Publishing 1st guidance order" << std::endl;
 
@@ -37,6 +38,7 @@ template <class Context> class FixedPointing : public Manoeuvre {
 				guidage.qd = qmult(qm, qdec);
 				std::copy(kp.begin(), kp.end(), guidage.kp.begin());
 				std::copy(kv2.begin(), kv2.end(), guidage.kv.begin());
+				guidage.header.stamp = ros::Time::now();
 				ctx.publish(guidage);
 				std::cout << "Publishing 2nd guidance order" << std::endl;
 

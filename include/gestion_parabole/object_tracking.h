@@ -23,6 +23,7 @@ template <class Context> class ObjectTracking : public Manoeuvre {
 			guidage.qd.z = 0;
 			guidage.qd.w = 1;
 			guidage.type = 1;
+			guidage.header.stamp = ros::Time::now();
 			ctx.publish(guidage);
 
 			ctx.sleep(t2);
