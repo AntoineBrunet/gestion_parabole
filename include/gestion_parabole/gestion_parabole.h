@@ -6,14 +6,14 @@
 #include "ros/ros.h"
 #include "cmg_msgs/Guidage.h"
 #include "geometry_msgs/Quaternion.h"
-#include "geometry_msgs/Vector3.h"
+#include "geometry_msgs/Vector3Stamped.h"
 #include "json.hpp"
 
 using json=nlohmann::json;
 
 namespace fyt_par {
 	typedef geometry_msgs::Quaternion quaternion_t;
-	typedef geometry_msgs::Vector3 moment_t;
+	typedef geometry_msgs::Vector3Stamped moment_t;
 	typedef int timing_t;
 	typedef const json & params_t;
 
@@ -34,7 +34,7 @@ namespace fyt_par {
 	{
 		return !str[h] ? 5381 : (str2int(str, h+1) * 33) ^ str[h];
 	}
-	
+
 #include "gestion_parabole/fixed_pointing.h"
 #include "gestion_parabole/object_tracking.h"
 #include "gestion_parabole/large_maneuver.h"
