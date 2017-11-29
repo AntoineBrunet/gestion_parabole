@@ -135,6 +135,10 @@ class Controller {
 					cmg_msgs::Guidage gui;
 					gui.type = 2;
 					gui.header.stamp = ros::Time::now();
+					gui.qd.w = 1;
+					gui.qd.x = 0;
+					gui.qd.y = 0;
+					gui.qd.z = 0;
 					publish(gui);
 					if (!ended) {
 						cmg_msgs::Signal sig;
